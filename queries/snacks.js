@@ -1,4 +1,5 @@
 const db = require("../db/dbConfig.js");
+const { confirmHealth, capitalize } = require("../validation/checkSnacks");
 
 //GET ALL Function
 const getAllSnacks = async () => {
@@ -24,16 +25,29 @@ const getSnack = async (id) => {
 
 //CREATE POST snack Function
 const createSnack = async (snack) => {
-  const { name, fiber, protein, added_sugar, is_healthy, image } = snack;
   try {
-    const newSnack = await db.one(
-      "INSERT INTO snacks (name, fiber, protein, added_sugar, is_healthy, image) VALUES($1, $2, $3, $4, $5, $6) RETURNING *",
-      [name, fiber, protein, added_sugar, is_healthy, image]
-    );
-    return newSnack;
-  } catch (error) {
-    console.log(error);
-    return error;
+    snack.name = capitalize(snack.name);
+    snack.is_healthy = confirmHealth(snack);
+    let { image } = snack;
+    let query = "INSERT INTO snacks ";
+
+    const fields = `(name, fiber, protein, added_sugar, is_healthy${
+      image ? ", image" : ""
+    })`;
+
+    let values =
+      "VALUES (${name}, ${fiber}, ${protein}, ${added_sugar}, ${is_healthy}";
+    if (image) values += ", ${image}";
+    values += ")";
+
+    query += fields;
+    query += values;
+    query += " RETURNING id";
+
+    const result = await db.one(query, snack);
+    return result;
+  } catch (err) {
+    console.error(err);
   }
 };
 
@@ -51,16 +65,18 @@ const deleteSnack = async (id) => {
 };
 
 //UPDATE Snack function
-const updateSnack = async (id, snack) => {
-  const { name, fiber, protein, added_sugar, is_healthy, image } = snack;
+const putSnack = async (snack, id) => {
   try {
-    const updatedSnack = await db.one(
-      "UPDATE snacks SET name=$1, fiber=$2, protein=$3, added_sugar=$4, is_healthy=$5, image=$6 WHERE id=$7 RETURNING *",
-      [name, fiber, protein, added_sugar, is_healthy, image, id]
-    );
-    return updatedSnack;
-  } catch (error) {
-    return error;
+    snack.name = capitalize(snack.name);
+    snack.is_healthy = confirmHealth(snack);
+
+    let query =
+      "UPDATE snacks SET name = ${name}, fiber = ${fiber}, protein = ${protein}, added_sugar = ${added_sugar}, is_healthy = ${is_healthy}, image = ${image} WHERE id = ${id} RETURNING id";
+
+    const result = await db.one(query, { id, ...snack });
+    return result;
+  } catch (err) {
+    console.error(err);
   }
 };
 
@@ -69,5 +85,5 @@ module.exports = {
   getSnack,
   createSnack,
   deleteSnack,
-  updateSnack,
+  putSnack,
 };

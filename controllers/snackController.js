@@ -5,13 +5,23 @@ const {
   getSnack,
   createSnack,
   deleteSnack,
-  updateSnack,
+  putSnack,
 } = require("../queries/snacks");
 const {
   checkName,
   checkBoolean,
   checkURL,
 } = require("../validation/checkSnacks");
+
+function validateInput(snack) {
+  console.log(snack.fiber, typeof snack.fiber);
+  return (
+    snack.name &&
+    typeof snack.name === "string" &&
+    Number(snack.fiber) !== "NaN" &&
+    Number(snack.protein) !== "NaN"
+  );
+}
 
 //INDEX
 snacks.get("/", async (req, res) => {
@@ -38,10 +48,14 @@ snacks.get("/:id", async (req, res) => {
 //CREATE
 snacks.post("/", async (req, res) => {
   try {
+    if (!validateInput(req.body)) {
+      return res.status(400).json({ error: "Invalid input please check your input again" });
+    }
     const snack = await createSnack(req.body);
-    res.json(snack);
-  } catch (error) {
-    res.status(400).json({ error });
+    return res.json(snack);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -58,9 +72,18 @@ snacks.delete("/:id", async (req, res) => {
 
 //UPDATE
 snacks.put("/:id", async (req, res) => {
-  const { id } = req.params;
-  const updatedSnack = await updateSnack(id, req.body);
-  res.status(200).json(updatedSnack);
+  try {
+    if (!validateInput(req.body)) {
+        return res
+        .status(400)
+        .json({ error: "Invalid input please check your input again" });
+    }
+    const snack = await putSnack(req.body, req.params.id);
+    return res.json(snack);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 module.exports = snacks;
