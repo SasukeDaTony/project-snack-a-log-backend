@@ -7,11 +7,7 @@ const {
   deleteSnack,
   putSnack,
 } = require("../queries/snacks");
-const {
-  checkName,
-  checkBoolean,
-  checkURL,
-} = require("../validation/checkSnacks");
+
 
 function validateInput(snack) {
   console.log(snack.fiber, typeof snack.fiber);
