@@ -1,3 +1,4 @@
+//Configuration
 const db = require("../db/dbConfig.js");
 const { confirmHealth, capitalize } = require("../validation/checkSnacks");
 
