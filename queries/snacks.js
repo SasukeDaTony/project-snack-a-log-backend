@@ -42,7 +42,7 @@ const createSnack = async (snack) => {
 
     query += fields;
     query += values;
-    query += " RETURNING id";
+    query += " RETURNING *";
 
     const result = await db.one(query, snack);
     return result;
