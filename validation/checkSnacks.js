@@ -17,12 +17,18 @@ const checkBoolean = (req, res, next) => {
 };
 
 const confirmHealth = (snack) => {
-    return snack.fiber >= 10 && snack.protein >= 20 && snack.added_sugar < 10;
-  };
+  return (
+    (snack.fiber >= 5 && snack.added_sugar <= 5) ||
+    (snack.protein >= 5 && snack.added_sugar <= 5)
+  );
+};
 
-  function capitalize(str) {
-    return str.split(" ").map(itm => `${itm[0].toUpperCase()}${itm.slice(1).toLowerCase()}`).join(" ");
- }
+function capitalize(str) {
+  return str
+    .split(" ")
+    .map((itm) => `${itm[0].toUpperCase()}${itm.slice(1).toLowerCase()}`)
+    .join(" ");
+}
 
 const checkURL = (req, res, next) => {
   const { url } = req.body;
@@ -38,4 +44,10 @@ const checkURL = (req, res, next) => {
   }
 };
 
-module.exports = { checkName, checkBoolean, checkURL, confirmHealth, capitalize };
+module.exports = {
+  checkName,
+  checkBoolean,
+  checkURL,
+  confirmHealth,
+  capitalize,
+};
