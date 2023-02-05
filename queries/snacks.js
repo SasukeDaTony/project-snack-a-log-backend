@@ -25,26 +25,31 @@ const getSnack = async (id) => {
 
 //CREATE POST snack Function
 const createSnack = async (snack) => {
+  let { name, fiber, protein, added_sugar, is_healthy, image } = snack;
   try {
-    snack.name = capitalize(snack.name);
-    snack.is_healthy = confirmHealth(snack);
-    let { image } = snack;
+    name = capitalize(name);
+    is_healthy = confirmHealth(snack);
+
     let query = "INSERT INTO snacks ";
 
-    const fields = `(name, fiber, protein, added_sugar, is_healthy${
-      image ? ", image" : ""
-    })`;
+    const fields = `(name, fiber, protein, added_sugar, is_healthy, image)`;
 
-    let values =
-      "VALUES (${name}, ${fiber}, ${protein}, ${added_sugar}, ${is_healthy}";
-    if (image) values += ", ${image}";
-    values += ")";
+    let values = "VALUES ($1, $2, $3, $4, $5, $6)";
 
     query += fields;
     query += values;
     query += " RETURNING *";
-
-    const result = await db.one(query, snack);
+    console.log(query);
+    const result = await db.one(query, [
+      name,
+      fiber,
+      protein,
+      added_sugar,
+      is_healthy,
+      image ||
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/1024px-No_image_available.svg.png",
+    ]);
+    console.log(image);
     return result;
   } catch (err) {
     console.error(err);
